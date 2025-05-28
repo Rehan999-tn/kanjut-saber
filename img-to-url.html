@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Image Uploader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-weight: 600;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .api-settings {
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #e9ecef;
+        }
+
+        .api-settings h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .api-settings h2 svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .upload-area {
+            border: 2px dashed #adb5bd;
+            border-radius: var(--border-radius);
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            background-color: #f8f9fa;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .upload-area.active {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .upload-area i {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .upload-area p {
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        .upload-area .small {
+            font-size: 12px;
+            color: #adb5bd;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview-container {
+            margin: 25px 0;
+            text-align: center;
+            display: none;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-info {
+            margin: 15px 0;
+            font-size: 14px;
+            color: var(--gray);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background-color: #adb5bd;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn i {
+            font-size: 18px;
+        }
+
+        .result-container {
+            margin-top: 25px;
+            display: none;
+        }
+
+        .result-container h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: var(--dark);
+        }
+
+        .url-box {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        #generatedUrl {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius) 0 0 var(--border-radius);
+            font-family: inherit;
+            font-size: 14px;
+            background-color: #f8f9fa;
+        }
+
+        .copy-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .copy-btn i {
+            font-size: 18px;
+        }
+
+        .api-status {
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 25px;
+            border: 1px solid #e9ecef;
+        }
+
+        .api-status h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .api-status h3 i {
+            color: var(--primary);
+        }
+
+        .progress-container {
+            margin-bottom: 15px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading i {
+            font-size: 40px;
+            color: var(--primary);
+            margin-bottom: 15px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: var(--danger);
+            background-color: rgba(247, 37, 133, 0.1);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin: 15px 0;
+            display: none;
+            font-size: 14px;
+        }
+
+        .success {
+            color: #2a9d8f;
+            background-color: rgba(42, 157, 143, 0.1);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin: 15px 0;
+            display: none;
+            font-size: 14px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 13px;
+            color: var(--gray);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .header {
+                padding: 20px 15px;
+            }
+            .content {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-cloud-upload-alt"></i> Advanced Image Uploader</h1>
+            <p>Unggah gambar dan dapatkan URL yang bisa dibagikan</p>
+        </div>
+
+        <div class="content">
+            <div class="api-settings">
+                <h2><i class="fas fa-key"></i> API Settings</h2>
+                <div class="form-group">
+                    <label for="apiKey">ImgBB API Key</label>
+                    <input type="text" id="apiKey" class="form-control" placeholder="Masukkan API key Anda">
+                    <p class="small" style="margin-top: 8px;">Dapatkan API key gratis di <a href="https://imgbb.com/" target="_blank">imgbb.com</a></p>
+                </div>
+            </div>
+
+            <div class="upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Drag & drop gambar di sini atau klik untuk memilih</p>
+                <p class="small">Format yang didukung: JPG, PNG, GIF (Max 10MB)</p>
+                <input type="file" id="fileInput" accept="image/*">
+            </div>
+
+            <div class="preview-container" id="previewContainer">
+                <img id="imagePreview" alt="Preview Gambar">
+                <div class="file-info" id="fileInfo"></div>
+            </div>
+
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner"></i>
+                <p>Mengupload gambar...</p>
+            </div>
+
+            <div class="error" id="error"></div>
+            <div class="success" id="success"></div>
+
+            <button class="btn" id="uploadBtn" disabled>
+                <i class="fas fa-link"></i> Generate URL
+            </button>
+
+            <div class="result-container" id="resultContainer">
+                <h3><i class="fas fa-link"></i> Shareable URL</h3>
+                <div class="url-box">
+                    <input type="text" id="generatedUrl" readonly>
+                    <button class="copy-btn" id="copyBtn" title="Salin URL">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="api-status" id="apiStatus">
+                <h3><i class="fas fa-chart-line"></i> API Usage</h3>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Limit bulanan</span>
+                        <span id="apiLimit">0/500</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+                <p class="small">Reset setiap tanggal 1 bulan berikutnya.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const previewContainer = document.getElementById('previewContainer');
+            const imagePreview = document.getElementById('imagePreview');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const resultContainer = document.getElementById('resultContainer');
+            const generatedUrl = document.getElementById('generatedUrl');
+            const copyBtn = document.getElementById('copyBtn');
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const success = document.getElementById('success');
+            const fileInfo = document.getElementById('fileInfo');
+            const apiKeyInput = document.getElementById('apiKey');
+            const apiStatus = document.getElementById('apiStatus');
+            const apiLimitText = document.getElementById('apiLimit');
+            const progressFill = document.getElementById('progressFill');
+
+            // Variables
+            let selectedFile = null;
+            let apiKey = localStorage.getItem('imgbb_api_key') || '';
+            let apiUsage = parseInt(localStorage.getItem('imgbb_api_usage') || '0');
+            const API_LIMIT = 500; // Free tier limit
+
+            // Initialize
+            apiKeyInput.value = apiKey;
+            updateApiStatus();
+
+            // Load API key from storage
+            if (apiKey) {
+                apiStatus.style.display = 'block';
+            }
+
+            // Save API key when changed
+            apiKeyInput.addEventListener('input', function() {
+                apiKey = apiKeyInput.value.trim();
+                localStorage.setItem('imgbb_api_key', apiKey);
+                if (apiKey) {
+                    apiStatus.style.display = 'block';
+                } else {
+                    apiStatus.style.display = 'none';
+                }
+            });
+
+            // Upload area click
+            uploadArea.addEventListener('click', function() {
+                fileInput.click();
+            });
+
+            // File selection
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    handleFileSelection(e.target.files[0]);
+                }
+            });
+
+            // Drag and drop
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('active');
+            });
+
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.classList.remove('active');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('active');
+                
+                if (e.dataTransfer.files.length > 0) {
+                    handleFileSelection(e.dataTransfer.files[0]);
+                }
+            });
+
+            // Upload button
+            uploadBtn.addEventListener('click', function() {
+                if (!selectedFile || !apiKey) return;
+                uploadImage();
+            });
+
+            // Copy button
+            copyBtn.addEventListener('click', function() {
+                generatedUrl.select();
+                document.execCommand('copy');
+                
+                // Show tooltip
+                const originalTitle = copyBtn.getAttribute('title');
+                copyBtn.setAttribute('title', 'Tersalin!');
+                setTimeout(() => {
+                    copyBtn.setAttribute('title', originalTitle);
+                }, 2000);
+                
+                // Show success message
+                showSuccess('URL berhasil disalin ke clipboard');
+            });
+
+            // Handle file selection
+            function handleFileSelection(file) {
+                // Validate file
+                if (!file.type.match('image.*')) {
+                    showError('Hanya file gambar yang diizinkan (JPG, PNG, GIF)');
+                    return;
+                }
+                
+                if (file.size > 10 * 1024 * 1024) { // 10MB
+                    showError('Ukuran file terlalu besar (Maksimal 10MB)');
+                    return;
+                }
+                
+                selectedFile = file;
+                
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                    
+                    // Scroll to preview
+                    previewContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                };
+                reader.readAsDataURL(file);
+                
+                // Show file info
+                fileInfo.innerHTML = `
+                    <span><strong>Nama:</strong> ${file.name}</span>
+                    <span><strong>Ukuran:</strong> ${formatFileSize(file.size)}</span>
+                `;
+                
+                // Enable upload button if API key exists
+                uploadBtn.disabled = !apiKey;
+                
+                // Hide previous results/errors
+                resultContainer.style.display = 'none';
+                error.style.display = 'none';
+                success.style.display = 'none';
+            }
+
+            // Upload image to ImgBB
+            function uploadImage() {
+                if (!apiKey) {
+                    showError('Harap masukkan API key ImgBB');
+                    return;
+                }
+                
+                if (apiUsage >= API_LIMIT) {
+                    showError('Anda telah mencapai limit upload bulanan (500 gambar)');
+                    return;
+                }
+                
+                loading.style.display = 'block';
+                uploadBtn.disabled = true;
+                error.style.display = 'none';
+                
+                const formData = new FormData();
+                formData.append('image', selectedFile);
+                
+                fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    
+                    if (data.success) {
+                        // Show the URL
+                        generatedUrl.value = data.data.url;
+                        resultContainer.style.display = 'block';
+                        
+                        // Increment API usage
+                        apiUsage++;
+                        localStorage.setItem('imgbb_api_usage', apiUsage.toString());
+                        updateApiStatus();
+                        
+                        // Show success message
+                        showSuccess('Gambar berhasil diupload!');
+                        
+                        // Scroll to result
+                        resultContainer.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        showError(data.error.message || 'Gagal mengupload gambar');
+                        uploadBtn.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    loading.style.display = 'none';
+                    showError('Error: ' + err.message);
+                    uploadBtn.disabled = false;
+                });
+            }
+
+            // Update API status display
+            function updateApiStatus() {
+                const percentage = Math.min(100, (apiUsage / API_LIMIT) * 100);
+                apiLimitText.textContent = `${apiUsage}/${API_LIMIT}`;
+                progressFill.style.width = `${percentage}%`;
+                
+                // Change color if near limit
+                if (percentage > 80) {
+                    progressFill.style.background = 'linear-gradient(90deg, #f72585, #f72585)';
+                } else {
+                    progressFill.style.background = 'linear-gradient(90deg, var(--primary), var(--success))';
+                }
+            }
+
+            // Show error message
+            function showError(message) {
+                error.textContent = message;
+                error.style.display = 'block';
+                setTimeout(() => {
+                    error.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+            }
+
+            // Show success message
+            function showSuccess(message) {
+                success.textContent = message;
+                success.style.display = 'block';
+                setTimeout(() => {
+                    success.style.display = 'none';
+                }, 3000);
+            }
+
+            // Format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        });
+    </script>
+</body>
+</html>
